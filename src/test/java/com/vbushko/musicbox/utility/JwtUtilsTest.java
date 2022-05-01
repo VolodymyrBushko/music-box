@@ -1,6 +1,7 @@
 package com.vbushko.musicbox.utility;
 
 import com.vbushko.musicbox.exception.InvalidJwtException;
+import com.vbushko.musicbox.security.utility.JwtUtils;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
