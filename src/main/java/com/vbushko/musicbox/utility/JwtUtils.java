@@ -1,6 +1,6 @@
-package com.vbushko.musicbox.utils;
+package com.vbushko.musicbox.utility;
 
-import com.vbushko.musicbox.exception.InvalidJwsException;
+import com.vbushko.musicbox.exception.InvalidJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -16,7 +16,7 @@ import java.util.Date;
 import java.util.UUID;
 
 @Component
-public class JwsUtils {
+public class JwtUtils {
 
     @Value("${security.jwt.secret-key}")
     private String secretKey;
@@ -31,7 +31,7 @@ public class JwsUtils {
         keyToSignWith = Keys.hmacShaKeyFor(secretKey.getBytes(StandardCharsets.UTF_8));
     }
 
-    public String generateJws(final String username) {
+    public String generateJwt(final String username) {
         Date now = new Date();
         return Jwts.builder()
                 .setSubject(username)
@@ -42,25 +42,25 @@ public class JwsUtils {
                 .compact();
     }
 
-    public String extractUsernameFromJws(final String jws) {
+    public String extractUsernameFromJwt(final String jwt) {
         try {
             return Jwts.parserBuilder()
                     .setSigningKey(keyToSignWith)
                     .build()
-                    .parseClaimsJws(jws)
+                    .parseClaimsJws(jwt)
                     .getBody()
                     .getSubject();
         } catch (JwtException e) {
-            throw new InvalidJwsException(e.getMessage(), e.getCause());
+            throw new InvalidJwtException(e.getMessage(), e.getCause());
         }
     }
 
-    public boolean isJwsValid(final String jws) {
+    public boolean isJwtValid(final String jwt) {
         try {
             Jwts.parserBuilder()
                     .setSigningKey(keyToSignWith)
                     .build()
-                    .parseClaimsJws(jws);
+                    .parseClaimsJws(jwt);
             return true;
         } catch (JwtException e) {
             return false;
