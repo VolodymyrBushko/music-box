@@ -4,5 +4,5 @@ import java.io.InputStream;
 
 public interface StorageService {
 
-    boolean uploadBlob(final String name, final InputStream data);
+    void uploadBlob(final String name, final InputStream data);
 }
