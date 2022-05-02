@@ -1,4 +1,4 @@
-package com.vbushko.musicbox.user.entity;
+package com.vbushko.musicbox.audio.entity;
 
 import lombok.*;
 
@@ -10,16 +10,16 @@ import javax.persistence.*;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class User {
+public class Audio {
 
     @Id
     @Column(name = "id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "username")
-    private String username;
+    @Column(name = "name")
+    private String name;
 
-    @Column(name = "password")
-    private String password;
+    @Column(name = "url")
+    private String url;
 }

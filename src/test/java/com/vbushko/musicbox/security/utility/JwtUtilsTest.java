@@ -1,4 +1,4 @@
-package com.vbushko.musicbox.utility;
+package com.vbushko.musicbox.security.utility;
 
 import com.vbushko.musicbox.exception.InvalidJwtException;
 import com.vbushko.musicbox.security.utility.JwtUtils;
