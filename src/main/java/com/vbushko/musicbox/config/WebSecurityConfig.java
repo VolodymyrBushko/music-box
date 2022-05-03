@@ -1,4 +1,4 @@
-package com.vbushko.musicbox.security.config;
+package com.vbushko.musicbox.config;
 
 import com.vbushko.musicbox.security.filter.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;

@@ -4,9 +4,9 @@ import com.vbushko.musicbox.audio.dto.AudioResponseDto;
 import com.vbushko.musicbox.audio.entity.Audio;
 import com.vbushko.musicbox.audio.mapper.AudioMapper;
 import com.vbushko.musicbox.audio.repository.AudioRepository;
-import com.vbushko.musicbox.common.utility.AuthUtils;
-import com.vbushko.musicbox.exception.AudioAlreadyExistsException;
-import com.vbushko.musicbox.exception.AudioDoesNotExistException;
+import com.vbushko.musicbox.common.utility.SecurityContextUtils;
+import com.vbushko.musicbox.exception.EntityAlreadyExistsException;
+import com.vbushko.musicbox.exception.EntityDoesNotExistException;
 import com.vbushko.musicbox.exception.PermissionDeniedException;
 import com.vbushko.musicbox.storage.service.BlobStorageService;
 import com.vbushko.musicbox.user.entity.User;
@@ -33,33 +33,33 @@ public class AudioService {
     private final AudioRepository audioRepository;
     private final AudioMapper audioMapper;
     private final UserService userService;
-    private final AuthUtils authUtils;
+    private final SecurityContextUtils securityContextUtils;
     private final BlobStorageService blobStorageService;
 
     @SneakyThrows
     @Transactional(propagation = Propagation.REQUIRED)
-    public AudioResponseDto saveAndUpload(final MultipartFile request) {
-        String audioName = request.getOriginalFilename();
-        InputStream audioData = request.getInputStream();
+    public AudioResponseDto saveAndUpload(final MultipartFile audioRequest) {
+        String audioName = audioRequest.getOriginalFilename();
+        InputStream audioData = audioRequest.getInputStream();
 
-        Audio audio = Optional.of(request)
+        Audio audio = Optional.of(audioRequest)
                 .map(audioMapper::map)
                 .filter(e -> !audioRepository.existsByName(e.getName()))
-                .orElseThrow(() -> new AudioAlreadyExistsException(String.format("The audio '%s' already exists", audioName)));
+                .orElseThrow(() -> new EntityAlreadyExistsException(String.format("The audio '%s' already exists", audioName)));
 
-        User user = userService.findByUsername(authUtils.getUsername());
-        audio.setPublisher(user);
+        User currentUser = userService.findByUsername(securityContextUtils.getUsername());
+        audio.setPublisher(currentUser);
 
         audioRepository.save(audio);
         blobStorageService.uploadBlob(audioName, audioData);
-        log.info("An audio '{}' has been saved successfully", audio.getName());
+        log.info("The audio '{}' has been saved successfully", audioName);
 
         return audioMapper.map(audio);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public List<AudioResponseDto> findAllByNameLike(final String name, final Pageable pageable) {
-        return audioRepository.findAllByNameLike(name, pageable).stream()
+    public List<AudioResponseDto> findAllByNameLike(final String audioName, final Pageable pageable) {
+        return audioRepository.findAllByNameLike(audioName, pageable).stream()
                 .map(audioMapper::map)
                 .collect(Collectors.toList());
     }
@@ -67,12 +67,12 @@ public class AudioService {
     @Transactional(propagation = Propagation.REQUIRED)
     public void removeByName(final String audioName) {
         Audio audio = audioRepository.findByName(audioName)
-                .orElseThrow(() -> new AudioDoesNotExistException(String.format("The audio '%s' doesn't exist", audioName)));
+                .orElseThrow(() -> new EntityDoesNotExistException(String.format("The audio '%s' doesn't exist", audioName)));
 
-        String targetUsername = audio.getPublisher().getUsername();
-        String currentUsername = authUtils.getUsername();
+        String publisherUsername = audio.getPublisher().getUsername();
+        String currentUsername = securityContextUtils.getUsername();
 
-        if (targetUsername.equals(currentUsername)) {
+        if (publisherUsername.equals(currentUsername)) {
             audioRepository.deleteByName(audioName);
             blobStorageService.removeBlob(audioName);
             log.info("The audio '{}' has been removed successfully", audioName);

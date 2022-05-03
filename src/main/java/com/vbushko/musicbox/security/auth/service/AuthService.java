@@ -1,14 +1,14 @@
 package com.vbushko.musicbox.security.auth.service;
 
+import com.vbushko.musicbox.common.utility.JwtUtils;
+import com.vbushko.musicbox.exception.EntityAlreadyExistsException;
 import com.vbushko.musicbox.exception.InvalidCredentialsException;
-import com.vbushko.musicbox.exception.UserAlreadyExistsException;
 import com.vbushko.musicbox.security.auth.dto.SignInRequestDto;
 import com.vbushko.musicbox.security.auth.dto.SignInResponseDto;
 import com.vbushko.musicbox.security.auth.dto.SignUpRequestDto;
 import com.vbushko.musicbox.security.auth.dto.SignUpResponseDto;
 import com.vbushko.musicbox.security.auth.mapper.SignInMapper;
 import com.vbushko.musicbox.security.auth.mapper.SignUpMapper;
-import com.vbushko.musicbox.security.utility.JwtUtils;
 import com.vbushko.musicbox.user.entity.User;
 import com.vbushko.musicbox.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -36,13 +36,14 @@ public class AuthService {
         User user = Optional.of(request)
                 .map(signUpMapper::map)
                 .filter(e -> !userRepository.existsByUsername(e.getUsername()))
-                .orElseThrow(() -> new UserAlreadyExistsException(String.format("The user '%s' already exists", request.getUsername())));
+                .orElseThrow(() -> new EntityAlreadyExistsException(String.format("The user '%s' already exists", request.getUsername())));
 
         String password = passwordEncoder.encode(user.getPassword());
         user.setPassword(password);
 
         userRepository.saveAndFlush(user);
         log.info("The user '{}' has been signed up", request.getUsername());
+
         return signUpMapper.map(user);
     }
 

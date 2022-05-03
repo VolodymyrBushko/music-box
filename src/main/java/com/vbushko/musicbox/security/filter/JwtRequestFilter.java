@@ -1,6 +1,6 @@
 package com.vbushko.musicbox.security.filter;
 
-import com.vbushko.musicbox.security.utility.JwtUtils;
+import com.vbushko.musicbox.common.utility.JwtUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
