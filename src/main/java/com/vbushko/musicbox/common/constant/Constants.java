@@ -1,4 +1,4 @@
-package com.vbushko.musicbox.common;
+package com.vbushko.musicbox.common.constant;
 
 import lombok.experimental.UtilityClass;
 

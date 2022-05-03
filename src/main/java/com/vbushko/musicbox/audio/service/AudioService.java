@@ -4,8 +4,13 @@ import com.vbushko.musicbox.audio.dto.AudioResponseDto;
 import com.vbushko.musicbox.audio.entity.Audio;
 import com.vbushko.musicbox.audio.mapper.AudioMapper;
 import com.vbushko.musicbox.audio.repository.AudioRepository;
+import com.vbushko.musicbox.common.utility.AuthUtils;
 import com.vbushko.musicbox.exception.AudioAlreadyExistsException;
-import com.vbushko.musicbox.storage.service.StorageService;
+import com.vbushko.musicbox.exception.AudioDoesNotExistException;
+import com.vbushko.musicbox.exception.PermissionDeniedException;
+import com.vbushko.musicbox.storage.service.BlobStorageService;
+import com.vbushko.musicbox.user.entity.User;
+import com.vbushko.musicbox.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +32,9 @@ public class AudioService {
 
     private final AudioRepository audioRepository;
     private final AudioMapper audioMapper;
-    private final StorageService storageService;
+    private final UserService userService;
+    private final AuthUtils authUtils;
+    private final BlobStorageService blobStorageService;
 
     @SneakyThrows
     @Transactional(propagation = Propagation.REQUIRED)
@@ -40,17 +47,38 @@ public class AudioService {
                 .filter(e -> !audioRepository.existsByName(e.getName()))
                 .orElseThrow(() -> new AudioAlreadyExistsException(String.format("The audio '%s' already exists", audioName)));
 
+        User user = userService.findByUsername(authUtils.getUsername());
+        audio.setPublisher(user);
+
         audioRepository.save(audio);
-        storageService.uploadBlob(audioName, audioData);
+        blobStorageService.uploadBlob(audioName, audioData);
         log.info("An audio '{}' has been saved successfully", audio.getName());
 
         return audioMapper.map(audio);
     }
 
     @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
-    public List<AudioResponseDto> findAllByName(final String name, final Pageable pageable) {
-        return audioRepository.findAllByName(name, pageable).stream()
+    public List<AudioResponseDto> findAllByNameLike(final String name, final Pageable pageable) {
+        return audioRepository.findAllByNameLike(name, pageable).stream()
                 .map(audioMapper::map)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED)
+    public void removeByName(final String audioName) {
+        Audio audio = audioRepository.findByName(audioName)
+                .orElseThrow(() -> new AudioDoesNotExistException(String.format("The audio '%s' doesn't exist", audioName)));
+
+        String targetUsername = audio.getPublisher().getUsername();
+        String currentUsername = authUtils.getUsername();
+
+        if (targetUsername.equals(currentUsername)) {
+            audioRepository.deleteByName(audioName);
+            blobStorageService.removeBlob(audioName);
+            log.info("The audio '{}' has been removed successfully", audioName);
+            return;
+        }
+
+        throw new PermissionDeniedException(String.format("You don't have permission to remove the following audio: '%s'", audioName));
     }
 }

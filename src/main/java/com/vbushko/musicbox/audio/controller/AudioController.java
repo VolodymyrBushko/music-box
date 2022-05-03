@@ -24,7 +24,12 @@ public class AudioController {
     }
 
     @GetMapping
-    public List<AudioResponseDto> findAllByName(@RequestParam("audioName") final String name, final Pageable pageable) {
-        return audioService.findAllByName(name, pageable);
+    public List<AudioResponseDto> findAllByNameLike(@RequestParam("audioName") final String name, final Pageable pageable) {
+        return audioService.findAllByNameLike(name, pageable);
+    }
+
+    @DeleteMapping("/{audioName}")
+    public void removeByName(@PathVariable final String audioName) {
+        audioService.removeByName(audioName);
     }
 }

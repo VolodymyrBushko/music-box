@@ -16,7 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
-import static com.vbushko.musicbox.common.Constants.TOKEN_PREFIX;
+import static com.vbushko.musicbox.common.constant.Constants.TOKEN_PREFIX;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 
