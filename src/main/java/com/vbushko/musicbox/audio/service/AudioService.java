@@ -9,13 +9,16 @@ import com.vbushko.musicbox.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.InputStream;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -42,5 +45,12 @@ public class AudioService {
         log.info("An audio '{}' has been saved successfully", audio.getName());
 
         return audioMapper.map(audio);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRED, readOnly = true)
+    public List<AudioResponseDto> findAllByName(final String name, final Pageable pageable) {
+        return audioRepository.findAllByName(name, pageable).stream()
+                .map(audioMapper::map)
+                .collect(Collectors.toList());
     }
 }
