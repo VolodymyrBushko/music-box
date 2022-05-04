@@ -28,7 +28,7 @@ import static com.vbushko.musicbox.common.constant.Constants.TOKEN_PREFIX;
 public class AuthService {
 
     private final PasswordEncoder passwordEncoder;
-    private final UserRepository userRepository;
+    private final UserRepository userRepository; // TODO: change to service
     private final SignUpMapper signUpMapper;
     private final SignInMapper signInMapper;
     private final JwtUtils jwtUtils;
