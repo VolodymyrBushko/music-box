@@ -1,6 +1,6 @@
 package com.vbushko.musicbox.config;
 
-import com.vbushko.musicbox.security.filter.JwtRequestFilter;
+import com.vbushko.musicbox.filter.JwtRequestFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;

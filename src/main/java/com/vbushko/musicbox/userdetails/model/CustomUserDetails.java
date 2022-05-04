@@ -1,4 +1,4 @@
-package com.vbushko.musicbox.security.userdetails.model;
+package com.vbushko.musicbox.userdetails.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

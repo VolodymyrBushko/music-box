@@ -1,14 +1,14 @@
-package com.vbushko.musicbox.security.auth.service;
+package com.vbushko.musicbox.auth.service;
 
+import com.vbushko.musicbox.auth.dto.SignInRequestDto;
+import com.vbushko.musicbox.auth.dto.SignInResponseDto;
+import com.vbushko.musicbox.auth.dto.SignUpRequestDto;
+import com.vbushko.musicbox.auth.dto.SignUpResponseDto;
+import com.vbushko.musicbox.auth.mapper.SignInMapper;
+import com.vbushko.musicbox.auth.mapper.SignUpMapper;
 import com.vbushko.musicbox.common.utility.JwtUtils;
 import com.vbushko.musicbox.exception.EntityAlreadyExistsException;
 import com.vbushko.musicbox.exception.InvalidCredentialsException;
-import com.vbushko.musicbox.security.auth.dto.SignInRequestDto;
-import com.vbushko.musicbox.security.auth.dto.SignInResponseDto;
-import com.vbushko.musicbox.security.auth.dto.SignUpRequestDto;
-import com.vbushko.musicbox.security.auth.dto.SignUpResponseDto;
-import com.vbushko.musicbox.security.auth.mapper.SignInMapper;
-import com.vbushko.musicbox.security.auth.mapper.SignUpMapper;
 import com.vbushko.musicbox.user.entity.User;
 import com.vbushko.musicbox.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
+
+import static com.vbushko.musicbox.common.constant.Constants.TOKEN_PREFIX;
 
 @Slf4j
 @Service
@@ -58,7 +60,7 @@ public class AuthService {
         if (passwordMatched) {
             String token = jwtUtils.generateJwt(username);
             log.info("A token has been generated for '{}'", username);
-            return signInMapper.map("Bearer " + token);
+            return signInMapper.map(TOKEN_PREFIX + token);
         }
 
         throw new InvalidCredentialsException("Invalid username or password");

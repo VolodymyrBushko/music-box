@@ -1,4 +1,4 @@
-package com.vbushko.musicbox.security.filter;
+package com.vbushko.musicbox.filter;
 
 import com.vbushko.musicbox.common.utility.JwtUtils;
 import lombok.RequiredArgsConstructor;
@@ -44,6 +44,7 @@ public class JwtRequestFilter extends OncePerRequestFilter {
                 log.info("The user '{}' has been signed in to the system", username);
             }
         }
+
         filterChain.doFilter(request, response);
     }
 }

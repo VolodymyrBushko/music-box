@@ -1,4 +1,4 @@
-package com.vbushko.musicbox.security.auth.dto;
+package com.vbushko.musicbox.auth.dto;
 
 import lombok.*;
 

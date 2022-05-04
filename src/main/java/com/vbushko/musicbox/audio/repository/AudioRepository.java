@@ -13,12 +13,12 @@ import java.util.Optional;
 @Repository
 public interface AudioRepository extends JpaRepository<Audio, Long> {
 
-    boolean existsByName(final String name);
+    boolean existsByName(String name);
 
-    Optional<Audio> findByName(final String name);
+    Optional<Audio> findByName(String name);
 
-    void deleteByName(final String name);
+    void deleteByName(String name);
 
     @Query("SELECT a FROM Audio a WHERE a.name LIKE %:name%")
-    Page<Audio> findAllByNameLike(@Param("name") final String name, final Pageable pageable);
+    Page<Audio> findAllByNameLike(@Param("name") String name, Pageable pageable);
 }
